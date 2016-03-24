@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroupOverlay;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -21,8 +22,8 @@ import org.osmdroid.views.MapView;
 
 public class DirectionActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     // Phong
-    protected static final String TAG = DirectionActivity.class.getName();
-    protected GoogleApiClient mGoogleApiClient;
+    private static final String TAG = DirectionActivity.class.getName();
+    private GoogleApiClient mGoogleApiClient;
     private IMapController mIMapController;
     private MapView mMapView;
     private FloatingActionButton mFloatingActionButton;
@@ -34,11 +35,11 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
         setContentView(R.layout.activity_direction);
 
         // Phong - show the map + add 2 zoom button + zoom at a default view point
-        mMapView = (MapView) findViewById(R.id.map);
+        mMapView = (MapView) findViewById(R.id.map); // map
         mMapView.setTileSource(TileSourceFactory.MAPNIK);
         mMapView.setBuiltInZoomControls(true);
         mMapView.setMultiTouchControls(true);
-        mIMapController = mMapView.getController();
+        mIMapController = mMapView.getController(); // map controller
         mIMapController.setZoom(10);
         GeoPoint startPoint = new GeoPoint(10.772241, 106.657676);
         mIMapController.setCenter(startPoint);
@@ -68,7 +69,6 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
                     Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.google_not_connected, Snackbar.LENGTH_SHORT);
                     snackbar.show();
                 }
-
             }
         });
     }
