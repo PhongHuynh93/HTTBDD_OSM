@@ -8,14 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroupOverlay;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -61,6 +60,13 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
                         mIMapController.setCenter(userCurrentPoint);
                         mIMapController.zoomTo(mMapView.getMaxZoomLevel());
                         // TODO: 3/24/16 make marker
+                        Marker hereMarker = new Marker(mMapView);
+                        hereMarker.setPosition(userCurrentPoint);
+                        hereMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                        hereMarker.setIcon(getResources().getDrawable(R.drawable.ic_face_black_24dp));
+                        hereMarker.setTitle("You here");
+                        mMapView.getOverlays().add(hereMarker);
+                        mMapView.invalidate();
                     } else {
                         Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.no_location_detected, Snackbar.LENGTH_SHORT);
                         snackbar.show();
