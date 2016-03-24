@@ -73,6 +73,7 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
         // applications that do not require a fine-grained location and that do not need location
         // updates. Gets the best and most recent location currently available, which may be null
         // in rare cases when a location is not available.
+        // TODO: 3/24/16 check permission when use with android 6
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             // TODO: 3/24/16 make a marker to this location
