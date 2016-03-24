@@ -1,9 +1,13 @@
 package dhbk.android.httbdd_osm;
 
 import android.location.Location;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -19,8 +23,10 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
     // Phong
     protected static final String TAG = DirectionActivity.class.getName();
     protected GoogleApiClient mGoogleApiClient;
-    protected Location mLastLocation; // contain the first location when detect user's current location
-
+    private IMapController mIMapController;
+    private MapView mMapView;
+    private FloatingActionButton mFloatingActionButton;
+    private CoordinatorLayout mCoordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,17 +34,43 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
         setContentView(R.layout.activity_direction);
 
         // Phong - show the map + add 2 zoom button + zoom at a default view point
-        MapView map = (MapView) findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        map.setBuiltInZoomControls(true);
-        map.setMultiTouchControls(true);
-        IMapController mapController = map.getController();
-        mapController.setZoom(18);
+        mMapView = (MapView) findViewById(R.id.map);
+        mMapView.setTileSource(TileSourceFactory.MAPNIK);
+        mMapView.setBuiltInZoomControls(true);
+        mMapView.setMultiTouchControls(true);
+        mIMapController = mMapView.getController();
+        mIMapController.setZoom(10);
         GeoPoint startPoint = new GeoPoint(10.772241, 106.657676);
-        mapController.setCenter(startPoint);
+        mIMapController.setCenter(startPoint);
 
         // Phong - add GOogle Api to get the current location
         buildGoogleApiClient();
+
+        // Phong - when click FAB, animate to user's current location and zoom.
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        mFloatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mGoogleApiClient.isConnected()) {
+                    // Phong - animate to user's current location and zoom.
+                    Location userCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    if (userCurrentLocation != null) {
+                        GeoPoint userCurrentPoint = new GeoPoint(userCurrentLocation.getLatitude(), userCurrentLocation.getLongitude());
+                        mIMapController.setCenter(userCurrentPoint);
+                        mIMapController.zoomTo(mMapView.getMaxZoomLevel());
+                        // TODO: 3/24/16 make marker
+                    } else {
+                        Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.no_location_detected, Snackbar.LENGTH_SHORT);
+                        snackbar.show();
+                    }
+                } else {
+                    Snackbar snackbar = Snackbar.make(mCoordinatorLayout, R.string.google_not_connected, Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                }
+
+            }
+        });
     }
 
     // Phong - use Location service
@@ -69,17 +101,8 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
     // Phong
     @Override
     public void onConnected(Bundle connectionHint) {
-        // Provides a simple way of getting a device's location and is well suited for
-        // applications that do not require a fine-grained location and that do not need location
-        // updates. Gets the best and most recent location currently available, which may be null
-        // in rare cases when a location is not available.
-        // TODO: 3/24/16 check permission when use with android 6
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-            // TODO: 3/24/16 make a marker to this location
-        } else {
-            Toast.makeText(this, R.string.no_location_detected, Toast.LENGTH_LONG).show();
-        }
+        // TODO: 3/24/16 request requently update from google.
+
     }
 
     @Override
