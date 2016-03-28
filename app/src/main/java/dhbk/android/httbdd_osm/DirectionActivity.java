@@ -1,13 +1,21 @@
 package dhbk.android.httbdd_osm;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -18,6 +26,11 @@ import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DirectionActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     // Phong
@@ -54,16 +67,26 @@ public class DirectionActivity extends AppCompatActivity implements GoogleApiCli
             public void onClick(View v) {
                 if (mGoogleApiClient.isConnected()) {
                     // Phong - animate to user's current location and zoom.
+                    if (ActivityCompat.checkSelfPermission(getApplication(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
                     Location userCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     if (userCurrentLocation != null) {
                         GeoPoint userCurrentPoint = new GeoPoint(userCurrentLocation.getLatitude(), userCurrentLocation.getLongitude());
                         mIMapController.setCenter(userCurrentPoint);
                         mIMapController.zoomTo(mMapView.getMaxZoomLevel());
-                        // TODO: 3/24/16 make marker
                         Marker hereMarker = new Marker(mMapView);
                         hereMarker.setPosition(userCurrentPoint);
                         hereMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                        hereMarker.setIcon(getResources().getDrawable(R.drawable.ic_face_black_24dp));
+                        // TODO: 3/25/16 fix this getDrawable
+                        hereMarker.setIcon(ContextCompat.getDrawable(getApplication(), R.drawable.ic_face_black_24dp));
                         hereMarker.setTitle("You here");
                         mMapView.getOverlays().add(hereMarker);
                         mMapView.invalidate();
