@@ -45,6 +45,8 @@ public class ShareActivity extends AppCompatActivity {
         map.setMultiTouchControls(true);
         mapController = map.getController();
         mapController.setZoom(18);
+        GeoPoint startPoint = new GeoPoint(10.772241, 106.657676);
+        mapController.setCenter(startPoint);
         route = new ArrayList<GeoPoint>();
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mStart = new Marker(map);
